@@ -24,11 +24,11 @@ if 'current_cmd' not in st.session_state:
 # --- メイン画面 ---
 st.title("🚩 旗揚げゲーム")
 
-# 【修正】指示：文字色を黒(#000000)に強制指定
+# 【微調整】指示のサイズを1つ下げる（subheader相当から少し小さめに）
 st.markdown(f"""
-<div style="background-color: #ffffff; padding: 15px; border-radius: 10px; border: 3px solid #333333;">
-    <p style="font-size: 18px; margin: 0; color: #000000; font-weight: bold;">指示：</p>
-    <p style="font-size: 24px; font-weight: 900; margin: 0; color: #000000;">【 {st.session_state.current_cmd['text']} 】</p>
+<div style="background-color: #f0f2f6; padding: 10px; border-radius: 10px; border: 1px solid #ddd;">
+    <p style="font-size: 18px; margin: 0; color: #555;">指示：</p>
+    <p style="font-size: 22px; font-weight: bold; margin: 0;">【 {st.session_state.current_cmd['text']} 】</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -37,14 +37,12 @@ st.write("")
 # --- 操作エリア ---
 col1, col2 = st.columns(2)
 
-# ボタンのフォントを大きく
+# ボタンのフォントを大きくするためのカスタムCSS
 st.markdown("""
 <style>
 div.stButton > button {
-    font-size: 26px !important;
-    font-weight: bold !important;
-    height: 3.5em !important;
-    border: 2px solid #555 !important;
+    font-size: 24px !important; /* ボタンの文字サイズを大きく */
+    height: 3em !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -61,13 +59,13 @@ with col2:
         st.session_state.white_up = not st.session_state.white_up
         st.rerun()
 
-# 【修正】現在の状態：文字色を黒に固定し、少し太く
+# 【微調整】現在の状態のサイズを1つ下げる
 r_status = "🚩【上】" if st.session_state.red_up else "　【下】"
 w_status = "🏳️【上】" if st.session_state.white_up else "　【下】"
 
 st.markdown(f"""
-<div style="text-align: center; font-size: 20px; padding: 15px; color: #000000; font-weight: bold;">
-    現在の状態： <span style="color: red;">赤{r_status}</span> ／ <span style="color: #555;">白{w_status}</span>
+<div style="text-align: center; font-size: 18px; padding: 10px; color: #666;">
+    現在の状態： <b>赤{r_status} ／ 白{w_status}</b>
 </div>
 """, unsafe_allow_html=True)
 
@@ -86,6 +84,7 @@ if not st.session_state.answered:
             st.success("⭕ 正解！！")
         else:
             st.error("❌ 不正解...")
+            st.write(f"正解は： 赤={'上げ' if st.session_state.current_cmd['red'] else '下げ'}, 白={'上げ' if st.session_state.current_cmd['white'] else '下げ'} でした。")
 
 # 次へ進む
 if st.session_state.answered:
