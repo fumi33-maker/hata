@@ -1,31 +1,71 @@
 import streamlit as st
 import random
 
-st.set_page_config(page_title="旗揚げゲーム", layout="centered")
+st.set_page_config(page_title="旗揚げゲーム Pro", layout="centered")
 
-st.title("🚩 旗揚げゲーム")
+# --- ゲームのデータ準備 ---
+if 'game_status' not in st.session_state:
+    st.session_state.command = "赤あげて、白あげない"
+    st.session_state.red_up = False
+    st.session_state.white_up = False
+    st.session_state.result = None
 
-# セッション状態の初期化
-if 'command' not in st.session_state:
-    st.session_state.command = "赤あげて、白あげない！"
-    st.session_state.score = 0
+# 指示と正解のパターンの定義
+commands = {
+    "赤あげて、白あげない": {"red": True, "white": False},
+    "赤下げないで、白上げる": {"red": True, "white": True},
+    "白下げて、赤あげない": {"red": False, "white": False},
+    "両方あげて！": {"red": True, "white": True},
+    "赤あげて、白下げる": {"red": True, "white": False},
+}
 
-# 指示の表示
-st.info(f"指示：{st.session_state.command}")
+def next_game():
+    st.session_state.command = random.choice(list(commands.keys()))
+    st.session_state.result = None
 
-# タブ（ボタン）の配置
+# --- UI部分 ---
+st.title("🚩 旗揚げオンライン")
+st.subheader(f"指示：【 {st.session_state.command} 】")
+
+st.divider()
+
+# 旗の状態を選択（トグルやボタンで表現）
 col1, col2 = st.columns(2)
 
 with col1:
-    if st.button("赤の旗 🚩", use_container_width=True, type="primary"):
-        # ここに判定ロジックを入れる（例：指示に「赤あげて」が含まれていたら正解など）
-        st.success("赤を操作しました！")
-        # 次の指示へ
-        st.session_state.command = random.choice(["赤下げないで、白上げる", "白下げて、赤下げない"])
+    st.write("🔴 赤の旗")
+    red_status = st.radio("状態", ["下げている", "上げている"], 
+                          index=1 if st.session_state.red_up else 0, key="red_radio")
+    st.session_state.red_up = (red_status == "上げている")
 
 with col2:
-    if st.button("白の旗 🏳️", use_container_width=True):
-        st.success("白を操作しました！")
-        st.session_state.command = random.choice(["赤上げて、白上げない", "両方下げる！"])
+    st.write("⚪ 白の旗")
+    white_status = st.radio("状態", ["下げている", "上げている"], 
+                            index=1 if st.session_state.white_up else 0, key="white_radio")
+    st.session_state.white_up = (white_status == "上げている")
 
-st.write(f"現在のスコア: {st.session_state.score}")
+st.divider()
+
+# --- 判定ボタン ---
+if st.button("これで決定！", use_container_width=True, type="primary"):
+    correct_state = commands[st.session_state.command]
+    
+    # 判定ロジック
+    is_red_correct = st.session_state.red_up == correct_state["red"]
+    is_white_correct = st.session_state.white_up == correct_state["white"]
+    
+    if is_red_correct and is_white_correct:
+        st.session_state.result = "⭕ 正解！！"
+    else:
+        st.session_state.result = "❌ 残念、不正解..."
+
+# 結果表示
+if st.session_state.result:
+    if "⭕" in st.session_state.result:
+        st.success(st.session_state.result)
+    else:
+        st.error(st.session_state.result)
+    
+    if st.button("次の問題へ"):
+        next_game()
+        st.rerun()
