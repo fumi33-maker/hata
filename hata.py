@@ -21,10 +21,24 @@ if 'current_cmd' not in st.session_state:
     st.session_state.white_up = False
     st.session_state.answered = False
 
+# --- 全ボタン共通のフォント設定（CSSカスタム） ---
+st.markdown("""
+<style>
+/* すべてのボタンのフォントサイズを上げ、太字にする */
+div.stButton > button {
+    font-size: 28px !important;    /* 以前よりさらに1つサイズアップ */
+    font-weight: 900 !important;   /* 超太字 */
+    height: 3.5em !important;
+    border: 3px solid #333 !important; /* 枠線も少し太くしてハッキリ */
+    border-radius: 15px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # --- メイン画面 ---
 st.title("🚩 旗揚げゲーム")
 
-# 【修正】指示：文字色を黒(#000000)に強制指定
+# 指示：文字色を黒に固定
 st.markdown(f"""
 <div style="background-color: #ffffff; padding: 15px; border-radius: 10px; border: 3px solid #333333;">
     <p style="font-size: 18px; margin: 0; color: #000000; font-weight: bold;">指示：</p>
@@ -34,47 +48,36 @@ st.markdown(f"""
 
 st.write("")
 
-# --- 操作エリア ---
+# --- 操作エリア（赤の旗・白の旗） ---
 col1, col2 = st.columns(2)
 
-# ボタンのフォントを大きく
-st.markdown("""
-<style>
-div.stButton > button {
-    font-size: 26px !important;
-    font-weight: bold !important;
-    height: 3.5em !important;
-    border: 2px solid #555 !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
 with col1:
-    label_red = "🚩 赤を【下げる】" if st.session_state.red_up else "🔴 赤を【上げる】"
+    label_red = "🚩赤を【下げる】" if st.session_state.red_up else "🔴赤を【上げる】"
     if st.button(label_red, use_container_width=True):
         st.session_state.red_up = not st.session_state.red_up
         st.rerun()
 
 with col2:
-    label_white = "🏳️ 白を【下げる】" if st.session_state.white_up else "⚪ 白を【上げる】"
+    label_white = "🏳️白を【下げる】" if st.session_state.white_up else "⚪白を【上げる】"
     if st.button(label_white, use_container_width=True):
         st.session_state.white_up = not st.session_state.white_up
         st.rerun()
 
-# 【修正】現在の状態：文字色を黒に固定し、少し太く
+# 現在の状態
 r_status = "🚩【上】" if st.session_state.red_up else "　【下】"
 w_status = "🏳️【上】" if st.session_state.white_up else "　【下】"
 
 st.markdown(f"""
 <div style="text-align: center; font-size: 20px; padding: 15px; color: #000000; font-weight: bold;">
-    現在の状態： <span style="color: red;">赤{r_status}</span> ／ <span style="color: #555;">白{w_status}</span>
+    現在の状態： <span style="color: red;">赤{r_status}</span> ／ <span style="color: #333;">白{w_status}</span>
 </div>
 """, unsafe_allow_html=True)
 
 st.divider()
 
-# --- 判定ボタン ---
+# --- 判定ボタンと次の問題ボタン ---
 if not st.session_state.answered:
+    # これで決定！ボタン
     if st.button("✨ これで決定！", use_container_width=True, type="primary"):
         st.session_state.answered = True
         
@@ -86,10 +89,9 @@ if not st.session_state.answered:
             st.success("⭕ 正解！！")
         else:
             st.error("❌ 不正解...")
-
-# 次へ進む
-if st.session_state.answered:
-    if st.button("次の問題へ ➔"):
+else:
+    # 次の問題へボタン
+    if st.button("➔ 次の問題へ", use_container_width=True):
         st.session_state.current_cmd = random.choice(st.session_state.master_commands)
         st.session_state.red_up = False
         st.session_state.white_up = False
