@@ -21,57 +21,62 @@ if 'current_cmd' not in st.session_state:
     st.session_state.white_up = False
     st.session_state.answered = False
 
+# --- 【重要】ここがサイズ調整場所です！ ---
+st.markdown(f"""
+<style>
+/* すべてのボタン（赤・白・決定・次へ）の共通設定 */
+div.stButton > button {{
+    font-size: 28px !important;    /* ← 【サイズ調整】数字を大きくするとフォントが大きくなります */
+    font-weight: 900 !important;   /* ← 【太さ調整】900が最大（超太字）です */
+    height: 3.5em !important;      /* ← 【ボタンの高さ】 */
+    border: 3px solid #333 !important;
+    border-radius: 15px !important;
+}}
+</style>
+""", unsafe_allow_html=True)
+
 # --- メイン画面 ---
 st.title("🚩 旗揚げゲーム")
 
-# 【微調整】指示のサイズを1つ下げる（subheader相当から少し小さめに）
+# 指示：文字サイズ 24px
 st.markdown(f"""
-<div style="background-color: #f0f2f6; padding: 10px; border-radius: 10px; border: 1px solid #ddd;">
-    <p style="font-size: 18px; margin: 0; color: #555;">指示：</p>
-    <p style="font-size: 22px; font-weight: bold; margin: 0;">【 {st.session_state.current_cmd['text']} 】</p>
+<div style="background-color: #ffffff; padding: 15px; border-radius: 10px; border: 3px solid #333333;">
+    <p style="font-size: 18px; margin: 0; color: #000000; font-weight: bold;">指示：</p>
+    <p style="font-size: 24px; font-weight: 900; margin: 0; color: #000000;">【 {st.session_state.current_cmd['text']} 】</p>
 </div>
 """, unsafe_allow_html=True)
 
 st.write("")
 
-# --- 操作エリア ---
+# --- 操作エリア（赤の旗・白の旗） ---
 col1, col2 = st.columns(2)
 
-# ボタンのフォントを大きくするためのカスタムCSS
-st.markdown("""
-<style>
-div.stButton > button {
-    font-size: 24px !important; /* ボタンの文字サイズを大きく */
-    height: 3em !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
 with col1:
-    label_red = "🚩 赤を【下げる】" if st.session_state.red_up else "🔴 赤を【上げる】"
+    label_red = "🚩赤を【下げる】" if st.session_state.red_up else "🔴赤を【上げる】"
     if st.button(label_red, use_container_width=True):
         st.session_state.red_up = not st.session_state.red_up
         st.rerun()
 
 with col2:
-    label_white = "🏳️ 白を【下げる】" if st.session_state.white_up else "⚪ 白を【上げる】"
+    label_white = "🏳️白を【下げる】" if st.session_state.white_up else "⚪白を【上げる】"
     if st.button(label_white, use_container_width=True):
         st.session_state.white_up = not st.session_state.white_up
         st.rerun()
 
-# 【微調整】現在の状態のサイズを1つ下げる
+# 現在の状態：文字サイズ 20px
 r_status = "🚩【上】" if st.session_state.red_up else "　【下】"
 w_status = "🏳️【上】" if st.session_state.white_up else "　【下】"
 
 st.markdown(f"""
-<div style="text-align: center; font-size: 18px; padding: 10px; color: #666;">
-    現在の状態： <b>赤{r_status} ／ 白{w_status}</b>
+<div style="text-align: center; font-size: 20px; padding: 15px; color: #000000; font-weight: bold;">
+    現在の状態： <span style="color: red;">赤{r_status}</span> ／ <span style="color: #333;">白{w_status}</span>
 </div>
 """, unsafe_allow_html=True)
 
 st.divider()
 
-# --- 判定ボタン ---
+# --- 判定ボタンと「次の問題へ」ボタン ---
+# 「決定」ボタンは回答前だけ表示
 if not st.session_state.answered:
     if st.button("✨ これで決定！", use_container_width=True, type="primary"):
         st.session_state.answered = True
@@ -84,11 +89,11 @@ if not st.session_state.answered:
             st.success("⭕ 正解！！")
         else:
             st.error("❌ 不正解...")
-            st.write(f"正解は： 赤={'上げ' if st.session_state.current_cmd['red'] else '下げ'}, 白={'上げ' if st.session_state.current_cmd['white'] else '下げ'} でした。")
+        st.rerun() # 結果を表示するために再描画
 
-# 次へ進む
+# 【復活！】回答済み（判定後）なら「次の問題へ」ボタンを表示
 if st.session_state.answered:
-    if st.button("次の問題へ ➔"):
+    if st.button("➔ 次の問題へ", use_container_width=True):
         st.session_state.current_cmd = random.choice(st.session_state.master_commands)
         st.session_state.red_up = False
         st.session_state.white_up = False
