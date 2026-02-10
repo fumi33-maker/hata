@@ -33,8 +33,8 @@ div.stButton > button {{
 
 /* 【赤ボタン専用の設定】 */
 div.stButton > button[key="red_btn"] {{
-    font-size: 35px !important;  /* ←ここを調整！数字を大きくするとデカくなります */
-    height: 3.5em !important;
+    font-size: 39px !important;  /* ←ここを調整！数字を大きくするとデカくなります */
+    height: 4.0em !important;
 }}
 
 /* 【白ボタン専用の設定】 */
@@ -45,8 +45,8 @@ div.stButton > button[key="white_btn"] {{
 
 /* 【決定ボタン専用の設定】 */
 div.stButton > button[key="decision_btn"] {{
-    font-size: 45px !important;  /* 決定ボタンはさらにデカく！ */
-    height: 3.5em !important;
+    font-size: 49px !important;  /* 決定ボタンはさらにデカく！ */
+    height: 4.0em !important;
 }}
 
 /* 【次の問題へボタン専用の設定】 */
@@ -111,9 +111,9 @@ else:
     # 判定後の演出
     if st.session_state.is_correct:
         st.balloons()
-        st.success("⭕ 正解！！ お見事！")
+        st.success("⭕ 正解！！ やった～！")
     else:
-        st.error("❌ 不正解... 指示をよく見て！")
+        st.error("❌ 残念... ")
 
     # 「次の問題へ」ボタンを表示（key="next_btn"）
     if st.button("➔ 次の問題へ", use_container_width=True, key="next_btn"):
@@ -123,3 +123,4 @@ else:
         st.session_state.answered = False
         st.session_state.is_correct = False
         st.rerun()
+
