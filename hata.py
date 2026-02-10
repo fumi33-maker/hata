@@ -33,7 +33,7 @@ div.stButton > button {{
 
 /* 【赤ボタン専用の設定】 */
 div.stButton > button[key="red_btn"] {{
-    font-size: 39px !important;  /* ←ここを調整！数字を大きくするとデカくなります */
+    font-size: 50px !important;  /* ←ここを調整！数字を大きくするとデカくなります */
     height: 4.0em !important;
 }}
 
@@ -123,4 +123,5 @@ else:
         st.session_state.answered = False
         st.session_state.is_correct = False
         st.rerun()
+
 
