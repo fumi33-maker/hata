@@ -27,7 +27,7 @@ st.markdown(f"""
 /* 共通設定：太字、枠線、角丸 */
 div.stButton > button {{
     font-weight: 900 !important;
-    border: 3px solid #333 !important;
+    border: 10px solid #333 !important;
     border-radius: 15px !important;
 }}
 
@@ -123,5 +123,6 @@ else:
         st.session_state.answered = False
         st.session_state.is_correct = False
         st.rerun()
+
 
 
