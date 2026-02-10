@@ -80,11 +80,11 @@ if not st.session_state.answered:
         
         if correct_red and correct_white:
             st.session_state.result_type = "success"
-            st.session_state.result_msg = "⭕ 正解！！ お見事！"
+            st.session_state.result_msg = "⭕ 正解！！ やったぁ！"
             st.balloons() # ここで風船！
         else:
             st.session_state.result_type = "error"
-            st.session_state.result_msg = "❌ 不正解... 指示をよく見て！"
+            st.session_state.result_msg = "❌ 残念... "
         
         st.session_state.answered = True
         st.rerun()
@@ -103,3 +103,4 @@ else:
         st.session_state.white_up = False
         st.session_state.answered = False
         st.rerun()
+
