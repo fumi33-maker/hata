@@ -18,14 +18,14 @@ if 'current_cmd' not in st.session_state:
     st.session_state.current_cmd = random.choice(st.session_state.master_commands)
     st.session_state.red_up = False
     st.session_state.white_up = False
-    st.session_state.answered = False # ここで「判定済みか」を管理
+    st.session_state.answered = False
 
 # --- 2. 文字サイズと太さの調整（CSS） ---
 st.markdown(f"""
 <style>
 div.stButton > button {{
-    font-size: 28px !important;    /* ← ボタンの文字サイズ */
-    font-weight: 900 !important;   /* ← ボタンの太字 */
+    font-size: 28px !important;
+    font-weight: 900 !important;
     height: 3.5em !important;
     border: 3px solid #333 !important;
     border-radius: 15px !important;
@@ -36,7 +36,6 @@ div.stButton > button {{
 # --- 3. メイン画面表示 ---
 st.title("🚩 旗揚げゲーム")
 
-# 指示：文字サイズ 24px 太字
 st.markdown(f"""
 <div style="background-color: #ffffff; padding: 15px; border-radius: 10px; border: 3px solid #333333;">
     <p style="font-size: 18px; margin: 0; color: #000000; font-weight: bold;">指示：</p>
@@ -46,7 +45,7 @@ st.markdown(f"""
 
 st.write("")
 
-# --- 4. 操作エリア（旗を上げる・下げる） ---
+# --- 4. 操作エリア ---
 col1, col2 = st.columns(2)
 
 with col1:
@@ -61,7 +60,7 @@ with col2:
         st.session_state.white_up = not st.session_state.white_up
         st.rerun()
 
-# 現在の状態：文字サイズ 20px 太字
+# 現在の状態
 r_status = "🚩【上】" if st.session_state.red_up else "　【下】"
 w_status = "🏳️【上】" if st.session_state.white_up else "　【下】"
 st.markdown(f"""
@@ -72,30 +71,32 @@ st.markdown(f"""
 
 st.divider()
 
-# --- 5. 判定と「次へ」の切り替え（ここが重要！） ---
+# --- 5. 判定と風船の演出 ---
 if not st.session_state.answered:
-    # 決定ボタンを表示
     if st.button("✨ これで決定！", use_container_width=True, type="primary"):
-        st.session_state.answered = True
-        
+        # 判定
         correct_red = (st.session_state.red_up == st.session_state.current_cmd['red'])
         correct_white = (st.session_state.white_up == st.session_state.current_cmd['white'])
         
         if correct_red and correct_white:
-            st.balloons()
-            st.session_state.result_msg = "⭕ 正解！！"
+            st.session_state.result_type = "success"
+            st.session_state.result_msg = "⭕ 正解！！ お見事！"
+            st.balloons() # ここで風船！
         else:
-            st.session_state.result_msg = "❌ 不正解..."
+            st.session_state.result_type = "error"
+            st.session_state.result_msg = "❌ 不正解... 指示をよく見て！"
+        
+        st.session_state.answered = True
         st.rerun()
 
 else:
-    # 判定結果を表示
-    if "⭕" in st.session_state.result_msg:
+    # 結果表示
+    if st.session_state.result_type == "success":
         st.success(st.session_state.result_msg)
     else:
         st.error(st.session_state.result_msg)
 
-    # 「次の問題へ」ボタンを表示（回答済みなら必ず出る）
+    # 「次の問題へ」ボタン
     if st.button("➔ 次の問題へ", use_container_width=True):
         st.session_state.current_cmd = random.choice(st.session_state.master_commands)
         st.session_state.red_up = False
