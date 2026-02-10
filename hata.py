@@ -3,7 +3,7 @@ import random
 
 st.set_page_config(page_title="旗揚げゲーム", layout="centered")
 
-# --- データ準備 ---
+# --- 1. データと状態の初期化 ---
 if 'master_commands' not in st.session_state:
     st.session_state.master_commands = [
         {"text": "赤上げて、白上げない", "red": True, "white": False},
@@ -14,31 +14,29 @@ if 'master_commands' not in st.session_state:
         {"text": "どっちも上げない", "red": False, "white": False},
     ]
 
-# --- ゲーム状態の初期化 ---
 if 'current_cmd' not in st.session_state:
     st.session_state.current_cmd = random.choice(st.session_state.master_commands)
     st.session_state.red_up = False
     st.session_state.white_up = False
-    st.session_state.answered = False
+    st.session_state.answered = False # ここで「判定済みか」を管理
 
-# --- 【重要】ここがサイズ調整場所です！ ---
+# --- 2. 文字サイズと太さの調整（CSS） ---
 st.markdown(f"""
 <style>
-/* すべてのボタン（赤・白・決定・次へ）の共通設定 */
 div.stButton > button {{
-    font-size: 28px !important;    /* ← 【サイズ調整】数字を大きくするとフォントが大きくなります */
-    font-weight: 900 !important;   /* ← 【太さ調整】900が最大（超太字）です */
-    height: 3.5em !important;      /* ← 【ボタンの高さ】 */
+    font-size: 28px !important;    /* ← ボタンの文字サイズ */
+    font-weight: 900 !important;   /* ← ボタンの太字 */
+    height: 3.5em !important;
     border: 3px solid #333 !important;
     border-radius: 15px !important;
 }}
 </style>
 """, unsafe_allow_html=True)
 
-# --- メイン画面 ---
+# --- 3. メイン画面表示 ---
 st.title("🚩 旗揚げゲーム")
 
-# 指示：文字サイズ 24px
+# 指示：文字サイズ 24px 太字
 st.markdown(f"""
 <div style="background-color: #ffffff; padding: 15px; border-radius: 10px; border: 3px solid #333333;">
     <p style="font-size: 18px; margin: 0; color: #000000; font-weight: bold;">指示：</p>
@@ -48,7 +46,7 @@ st.markdown(f"""
 
 st.write("")
 
-# --- 操作エリア（赤の旗・白の旗） ---
+# --- 4. 操作エリア（旗を上げる・下げる） ---
 col1, col2 = st.columns(2)
 
 with col1:
@@ -63,10 +61,9 @@ with col2:
         st.session_state.white_up = not st.session_state.white_up
         st.rerun()
 
-# 現在の状態：文字サイズ 20px
+# 現在の状態：文字サイズ 20px 太字
 r_status = "🚩【上】" if st.session_state.red_up else "　【下】"
 w_status = "🏳️【上】" if st.session_state.white_up else "　【下】"
-
 st.markdown(f"""
 <div style="text-align: center; font-size: 20px; padding: 15px; color: #000000; font-weight: bold;">
     現在の状態： <span style="color: red;">赤{r_status}</span> ／ <span style="color: #333;">白{w_status}</span>
@@ -75,9 +72,9 @@ st.markdown(f"""
 
 st.divider()
 
-# --- 判定ボタンと「次の問題へ」ボタン ---
-# 「決定」ボタンは回答前だけ表示
+# --- 5. 判定と「次へ」の切り替え（ここが重要！） ---
 if not st.session_state.answered:
+    # 決定ボタンを表示
     if st.button("✨ これで決定！", use_container_width=True, type="primary"):
         st.session_state.answered = True
         
@@ -86,13 +83,19 @@ if not st.session_state.answered:
         
         if correct_red and correct_white:
             st.balloons()
-            st.success("⭕ 正解！！")
+            st.session_state.result_msg = "⭕ 正解！！"
         else:
-            st.error("❌ 不正解...")
-        st.rerun() # 結果を表示するために再描画
+            st.session_state.result_msg = "❌ 不正解..."
+        st.rerun()
 
-# 【復活！】回答済み（判定後）なら「次の問題へ」ボタンを表示
-if st.session_state.answered:
+else:
+    # 判定結果を表示
+    if "⭕" in st.session_state.result_msg:
+        st.success(st.session_state.result_msg)
+    else:
+        st.error(st.session_state.result_msg)
+
+    # 「次の問題へ」ボタンを表示（回答済みなら必ず出る）
     if st.button("➔ 次の問題へ", use_container_width=True):
         st.session_state.current_cmd = random.choice(st.session_state.master_commands)
         st.session_state.red_up = False
