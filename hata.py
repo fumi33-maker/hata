@@ -19,16 +19,40 @@ if 'current_cmd' not in st.session_state:
     st.session_state.red_up = False
     st.session_state.white_up = False
     st.session_state.answered = False
+    st.session_state.is_correct = False
 
 # --- 2. 文字サイズと太さの調整（CSS） ---
 st.markdown(f"""
 <style>
+/* 共通設定：太字、枠線、角丸 */
 div.stButton > button {{
-    font-size: 28px !important;
     font-weight: 900 !important;
-    height: 3.5em !important;
     border: 3px solid #333 !important;
     border-radius: 15px !important;
+}}
+
+/* 【赤ボタン専用の設定】 */
+div.stButton > button[key="red_btn"] {{
+    font-size: 35px !important;  /* ←ここを調整！数字を大きくするとデカくなります */
+    height: 3.5em !important;
+}}
+
+/* 【白ボタン専用の設定】 */
+div.stButton > button[key="white_btn"] {{
+    font-size: 35px !important;  /* ←ここを調整！ */
+    height: 3.5em !important;
+}}
+
+/* 【決定ボタン専用の設定】 */
+div.stButton > button[key="decision_btn"] {{
+    font-size: 45px !important;  /* 決定ボタンはさらにデカく！ */
+    height: 3.5em !important;
+}}
+
+/* 【次の問題へボタン専用の設定】 */
+div.stButton > button[key="next_btn"] {{
+    font-size: 30px !important;
+    height: 3.0em !important;
 }}
 </style>
 """, unsafe_allow_html=True)
@@ -36,8 +60,9 @@ div.stButton > button {{
 # --- 3. メイン画面表示 ---
 st.title("🚩 旗揚げゲーム")
 
+# 指示：文字色を黒に固定
 st.markdown(f"""
-<div style="background-color: #ffffff; padding: 15px; border-radius: 15px; border: 3px solid #333333;">
+<div style="background-color: #ffffff; padding: 15px; border-radius: 10px; border: 3px solid #333333;">
     <p style="font-size: 18px; margin: 0; color: #000000; font-weight: bold;">指示：</p>
     <p style="font-size: 24px; font-weight: 900; margin: 0; color: #000000;">【 {st.session_state.current_cmd['text']} 】</p>
 </div>
@@ -45,18 +70,18 @@ st.markdown(f"""
 
 st.write("")
 
-# --- 4. 操作エリア ---
+# --- 4. 操作エリア（旗を上げる・下げる） ---
 col1, col2 = st.columns(2)
 
 with col1:
     label_red = "🚩赤を【下げる】" if st.session_state.red_up else "🔴赤を【上げる】"
-    if st.button(label_red, use_container_width=True):
+    if st.button(label_red, use_container_width=True, key="red_btn"):
         st.session_state.red_up = not st.session_state.red_up
         st.rerun()
 
 with col2:
     label_white = "🏳️白を【下げる】" if st.session_state.white_up else "⚪白を【上げる】"
-    if st.button(label_white, use_container_width=True):
+    if st.button(label_white, use_container_width=True, key="white_btn"):
         st.session_state.white_up = not st.session_state.white_up
         st.rerun()
 
@@ -71,37 +96,30 @@ st.markdown(f"""
 
 st.divider()
 
-# --- 5. 判定と風船の演出 ---
+# --- 5. 判定と「次へ」の切り替え ---
 if not st.session_state.answered:
-    if st.button("✨ これで決定！", use_container_width=True, type="primary"):
-        # 判定
+    # 決定ボタンを表示（key="decision_btn"）
+    if st.button("✨ これで決定！", use_container_width=True, type="primary", key="decision_btn"):
         correct_red = (st.session_state.red_up == st.session_state.current_cmd['red'])
         correct_white = (st.session_state.white_up == st.session_state.current_cmd['white'])
         
-        if correct_red and correct_white:
-            st.session_state.result_type = "success"
-            st.session_state.result_msg = "⭕ 正解！！ やったぁ！"
-            st.balloons() # ここで風船！
-        else:
-            st.session_state.result_type = "error"
-            st.session_state.result_msg = "❌ 残念... "
-        
         st.session_state.answered = True
+        st.session_state.is_correct = (correct_red and correct_white)
         st.rerun()
 
 else:
-    # 結果表示
-    if st.session_state.result_type == "success":
-        st.success(st.session_state.result_msg)
+    # 判定後の演出
+    if st.session_state.is_correct:
+        st.balloons()
+        st.success("⭕ 正解！！ お見事！")
     else:
-        st.error(st.session_state.result_msg)
+        st.error("❌ 不正解... 指示をよく見て！")
 
-    # 「次の問題へ」ボタン
-    if st.button("➔ 次の問題へ", use_container_width=True):
+    # 「次の問題へ」ボタンを表示（key="next_btn"）
+    if st.button("➔ 次の問題へ", use_container_width=True, key="next_btn"):
         st.session_state.current_cmd = random.choice(st.session_state.master_commands)
         st.session_state.red_up = False
         st.session_state.white_up = False
         st.session_state.answered = False
+        st.session_state.is_correct = False
         st.rerun()
-
-
