@@ -37,7 +37,7 @@ div.stButton > button {{
 st.title("🚩 旗揚げゲーム")
 
 st.markdown(f"""
-<div style="background-color: #ffffff; padding: 15px; border-radius: 10px; border: 3px solid #333333;">
+<div style="background-color: #ffffff; padding: 15px; border-radius: 15px; border: 3px solid #333333;">
     <p style="font-size: 18px; margin: 0; color: #000000; font-weight: bold;">指示：</p>
     <p style="font-size: 24px; font-weight: 900; margin: 0; color: #000000;">【 {st.session_state.current_cmd['text']} 】</p>
 </div>
@@ -103,4 +103,5 @@ else:
         st.session_state.white_up = False
         st.session_state.answered = False
         st.rerun()
+
 
